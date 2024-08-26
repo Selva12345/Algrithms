@@ -1,7 +1,6 @@
 package com.leetcode;
 
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.*;
 
 public class SumofDistancesinTree {
 	public static void main(String[] args) {
@@ -10,39 +9,49 @@ public class SumofDistancesinTree {
 		s.sumOfDistancesInTree(6, edge);
 		
 	}
-	 int[] res, count;
-	    ArrayList<HashSet<Integer>> tree;
-	    public int[] sumOfDistancesInTree(int N, int[][] edges) {
-	        tree = new ArrayList<HashSet<Integer>>();
-	        res = new int[N];
-	        count = new int[N];
-	        for (int i = 0; i < N ; ++i)
-	            tree.add(new HashSet<Integer>());
-	        for (int[] e : edges) {
-	            tree.get(e[0]).add(e[1]);
-	            tree.get(e[1]).add(e[0]);
-	        }
-	        dfs(0, -1);
-	        dfs2(0, -1);
-	        return res;
-	    }
+	int []res;
+	int count[];
+	int M;
+	public int[] sumOfDistancesInTree(int n, int[][] edges) {
+		res=new int[n];
+		count=new int[n];
+		M=n;
+		Map<Integer, List<Integer>> graph= new HashMap<>();
+		buildGraph(n,edges,graph);
 
-	    public void dfs(int root, int pre) {
-	        for (int i : tree.get(root)) {
-	            if (i == pre) continue;
-	            dfs(i, root);
-	            count[root] += count[i];
-	            res[root] += res[i] + count[i];
-	        }
-	        count[root]++;
-	    }
+		traverse(graph,0,-1);
+		traverseAll(graph,0,-1);
+		return res;
+	}
 
+	public void traverse(Map<Integer,List<Integer>> graph, int start, int prev){
+		int c=0;
+		if(graph.get(start)==null)return ;
+		for(int v:graph.get(start)){
+			if(v==prev)continue;
+			traverse(graph,v,start);
+			count[start]+= count[v];
+			res[start]+=res[v]+count[v];
+			//System.out.println(start+" "+count[start]);
+		}
 
-	    public void dfs2(int root, int pre) {
-	        for (int i : tree.get(root)) {
-	            if (i == pre) continue;
-	            res[i] = res[root] - count[i] + count.length - count[i];
-	            dfs2(i, root);
-	        }
-}
+		 count[start]++;
+	}
+	public void traverseAll(Map<Integer,List<Integer>> graph,int start,int prev){
+		int c=0;
+		if(graph.get(start)==null)return;
+		for(int v:graph.get(start)){
+			if(v==prev)continue;
+			res[v]=res[start]-count[v]+(M-count[v]);
+			traverseAll(graph,v,start);
+
+		}
+		return;
+	}
+	public void buildGraph(int n, int[][] edges, Map<Integer,List<Integer>> graph){
+		for(int arr[]:edges){
+			graph.computeIfAbsent(arr[0],s->new ArrayList<>()).add(arr[1]);
+			graph.computeIfAbsent(arr[1],s->new ArrayList<>()).add(arr[0]);
+		}
+	}
 }
